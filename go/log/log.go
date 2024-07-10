@@ -1,4 +1,4 @@
-package logLevel
+package log
 
 import (
 	"fmt"
@@ -14,6 +14,14 @@ const (
 	WARNING = 3
 	ERROR = 4
 )
+
+const (
+	GET_STRING = "GET %s - \"%s\""
+	POST_STRING = "POST %s - \"%s\""
+	PUT_STRING = "PUT %s - \"%s\""
+	DELETE_STRING = "DELETE %s - \"%s\""
+)
+
 var logr = logrus.New()
 
 func init() {
