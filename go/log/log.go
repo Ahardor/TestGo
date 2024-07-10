@@ -17,7 +17,7 @@ const (
 
 const (
 	GET_STRING = "GET %s - \"%s\""
-	POST_STRING = "POST %s - \"%s\""
+	POST_STRING = "POST %s with data %s - \"%s\""
 	PUT_STRING = "PUT %s - \"%s\""
 	DELETE_STRING = "DELETE %s - \"%s\""
 )

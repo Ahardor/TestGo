@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 
-	"test_go_app/go/classes"
 	log "test_go_app/go/log"
 
 	handlers "test_go_app/go/http"
@@ -24,15 +23,6 @@ func init() {
 func main() {
 	if err := db.Connect(); err != nil {
 		return 
-	} else {
-		s, err := db.GetUsers(db.Psql, classes.PeopleFilter{
-			Passport: []string{"1234 456789"},
-			Name: []string{"Вася"},
-		})
-		if err != nil {
-			return
-		}
-		log.Print(log.DEBUG, "%v", s)
 	}
 
 	// Запуск сервера
@@ -41,6 +31,7 @@ func main() {
 	router.MethodNotAllowed = http.HandlerFunc(methodNotAllowed);
 
 	router.GET("/", handlers.Index)
+	router.POST("/people", handlers.People)
 
 	log.Print(log.INFO, "Server starting on port 8080")
 	err := http.ListenAndServe(":8080", router)
