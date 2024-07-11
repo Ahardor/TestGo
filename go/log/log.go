@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Уровни логирования
 const (
 	UNKNOWN = 0
 	DEBUG = 1
@@ -15,6 +16,7 @@ const (
 	ERROR = 4
 )
 
+// Строки логирования
 const (
 	GET_STRING = "GET %s - \"%s\""
 	POST_STRING = "POST %s with data %s - \"%s\""
@@ -22,8 +24,10 @@ const (
 	DELETE_STRING = "DELETE %s - \"%s\""
 )
 
+// Объект логирования
 var logr = logrus.New()
 
+// Функция инициализации
 func init() {
 	// Файл для логирования
 	log_output, err := os.OpenFile("log.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
@@ -42,7 +46,9 @@ func init() {
 	logr.SetOutput(log_output)
 }
 
+// Логирование
 func Print(level int, msg string, args ...interface{}) {
+	// Формирование сообщения
 	msgf := fmt.Sprintf(msg, args...)
 	fmt.Printf("%s: %s;\n", logLvlToStr(level), msgf)
 
@@ -58,6 +64,7 @@ func Print(level int, msg string, args ...interface{}) {
 	}
 }
 
+// Перевод уровня логирования в строку
 func logLvlToStr(level int) string {
 	switch level {
 		case DEBUG:
