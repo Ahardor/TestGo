@@ -92,3 +92,39 @@ func InsertUser(p *sql.DB, passport string) error {
 
 	return nil
 }
+
+// Добавление задачи
+func AddTask(p *sql.DB, title string, description string, passport string) error {
+
+	// Выполнение запроса для добавления задачи
+	_, err := p.Exec("INSERT INTO tasks (title, description, user_passport) VALUES($1, $2, $3)", title, description, passport)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Начало отсчёта времени в задаче
+func StartTaskTime(p *sql.DB, taskID string) error {
+
+	// Выполнение запроса для изменения времени
+	_, err := p.Exec("UPDATE tasks SET started_at = NOW(), finished_at = NULL WHERE id = $1", taskID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Завершение отсчёта времени в задаче
+func FinishTaskTime(p *sql.DB, taskID string) error {
+
+	// Выполнение запроса для изменения времени
+	_, err := p.Exec("UPDATE tasks SET finished_at = NOW() WHERE id = $1", taskID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

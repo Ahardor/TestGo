@@ -1,8 +1,9 @@
 CREATE TABLE tasks (
     id SERIAL PRIMARY KEY,
-    title TEXT NOT NULL,
-    description TEXT NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    started_at TIMESTAMP WITH TIME ZONE,
-    finished_at TIMESTAMP WITH TIME ZONE
+    title TEXT NULL,
+    description TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    started_at TIMESTAMP DEFAULT '1970-01-01 00:00:00',
+    finished_at TIMESTAMP DEFAULT '1970-01-01 00:00:00',
+    user_passport CHARACTER VARYING(11)
 );

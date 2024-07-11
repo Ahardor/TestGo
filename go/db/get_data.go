@@ -37,18 +37,21 @@ func GetUsers(p GetUsersParams, filter ...classes.PeopleFilter) (result []classe
 	query := "SELECT * FROM people"
 
 	needAnd := false
+	addedWhere := false
 
 	// Формирование запроса при наличии фильтров
 	if(len(filter) > 0) {
-		query += " WHERE "
-
 		// Перебор полей класса фильтра
 		fields := reflect.VisibleFields(reflect.TypeOf(filter[0]))
 		values := reflect.ValueOf(filter[0])
 
 		for i, field := range fields {
 			if values.Field(i).Len() > 0 {
-				if(needAnd) {
+				if !addedWhere {
+					query += " WHERE "
+					addedWhere = true
+				}
+				if needAnd {
 					query += " AND "
 				}
 				// В тэге db хранится название полей
@@ -82,4 +85,56 @@ func GetUsers(p GetUsersParams, filter ...classes.PeopleFilter) (result []classe
 	}
 
 	return result, nil
+}
+
+// Получение времени выполнения задач
+func GetTime(p *sql.DB, passport string) (time int64, tasksTimes map[int]int64, err error) {
+	tasksTimes = make(map[int]int64, 0)
+	
+	// Выполнение запроса
+	rows, err := p.Query("SELECT id, started_at, finished_at FROM tasks WHERE user_passport = $1 AND finished_at IS NOT NULL AND started_at IS NOT NULL ORDER BY EXTRACT(EPOCH FROM (finished_at - started_at)) DESC", passport)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	// Заполнение результата
+	for rows.Next() {
+		var taskId int
+		var startedAt sql.NullTime
+		var finishedAt sql.NullTime
+		// Сканирование полей
+		err = rows.Scan(&taskId, &startedAt, &finishedAt)
+		if err != nil {
+			return 0, nil, err
+		}
+		// Подсчет времени по отдельным задачам
+		tasksTimes[taskId] = finishedAt.Time.Unix() - startedAt.Time.Unix()
+		// Подсчет общего времени
+		time = time + (finishedAt.Time.Unix() - startedAt.Time.Unix())
+	}
+
+	return time, tasksTimes, nil
+}
+
+// Получение задач пользователя
+func GetTasks(p *sql.DB, passport string) (tasks []classes.Task, err error) {
+	
+	// Выполнение запроса
+	rows, err := p.Query("SELECT * FROM tasks WHERE user_passport = $1", passport)
+	if err != nil {
+		return nil, err
+	}
+
+	// Заполнение результата
+	for rows.Next() {
+		var t classes.Task
+		// Сканирование полей
+		err = rows.Scan(&t.ID, &t.Name, &t.Description, &t.CreatedAT, &t.StartedAT, &t.FinishedAT, &t.UserPassport)
+		if err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, t)
+	}
+
+	return tasks, nil
 }

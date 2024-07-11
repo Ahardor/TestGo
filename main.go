@@ -31,10 +31,16 @@ func main() {
 	router.MethodNotAllowed = http.HandlerFunc(methodNotAllowed);
 
 	router.GET("/", handlers.Index)
+	router.GET("/info", handlers.UserInfo)
 	router.POST("/getPeople", handlers.GetPeople)
 	router.DELETE("/deleteUser", handlers.DeleteUser)
 	router.PUT("/updateUser", handlers.UpdateUser)
 	router.POST("/insertUser", handlers.CreateUser)
+	router.GET("/tasks", handlers.GetUserTasks)
+	router.PUT("/startTask", handlers.StartTask)
+	router.PUT("/finishTask", handlers.FinishTask)
+	router.GET("/userTime", handlers.GetUserTime)
+	router.POST("/addTask", handlers.AddTask)
 
 	log.Print(log.INFO, "Server starting on port 8080")
 	err := http.ListenAndServe(":8080", router)

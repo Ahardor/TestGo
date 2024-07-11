@@ -146,6 +146,12 @@ func UpdateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		log.Print(log.ERROR, "Failed to update user %s", err.Error())
 		return
 	}
+
+	// Отправка ответа
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("OK"))
+	
+	log.Print(log.DEBUG, log.PUT_STRING, r.URL, params.String())
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -183,4 +189,172 @@ func CreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Write([]byte("OK"))
 	
 	log.Print(log.DEBUG, log.POST_STRING, r.URL, params.Passport, "OK")
+}
+
+// Получение информации об одном пользователе
+func UserInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+	// Переменная для хранения параметров запроса
+	passport := fmt.Sprintf("%s %s", r.URL.Query().Get("passportSerie"), r.URL.Query().Get("passportNumber"))
+
+	// Вызов функции получения информации о пользователе
+	db_data, err := db.GetUsers(db.GetUsersParams{Limit: 1}, classes.PeopleFilter{
+		Passport: []string{passport},
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Print(log.ERROR, "Failed to get user info %s", err.Error())
+		return
+	}
+
+	// Отправка ответа
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(db_data[0].String()))
+	
+	log.Print(log.DEBUG, log.GET_STRING, r.URL, passport)
+}
+
+// Получение списка задач пользователя
+func GetUserTasks(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+	passport := fmt.Sprintf("%s %s", r.URL.Query().Get("passportSerie"), r.URL.Query().Get("passportNumber"))
+	log.Print(log.DEBUG, "Passport: %s", r.URL.Query())
+	
+	// Вызов функции получения информации о пользователе
+	db_data, err := db.GetTasks(db.Psql, passport)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Print(log.ERROR, "Failed to get user info %s", err.Error())
+		return
+	}
+
+	// Преобразование полученных данных в JSON
+	data, err := json.MarshalIndent(db_data, "", "    ")
+	if err != nil {
+		log.Print(log.ERROR, "Marshal error %s", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Отправка ответа
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(string(data)))
+	
+	log.Print(log.DEBUG, log.GET_STRING, r.URL, passport)
+}
+
+// Добавление задачи
+func AddTask(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+	// Переменная для хранения параметров запроса
+	var params struct {
+		Passport string `json:"passport"`
+		Title string `json:"title"`
+		Description string `json:"description"`
+	}
+
+	// Чтение тела запроса
+	data, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Print(log.ERROR, "Read body error %s", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Парсинг тела запроса
+	err = json.Unmarshal(data, &params)
+	if err != nil {
+		log.Print(log.ERROR, "Unmarshal error %s", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Вызов функции добавления задачи
+	err = db.AddTask(db.Psql, params.Title, params.Description, params.Passport)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Print(log.ERROR, "Failed to add task %s", err.Error())
+		return
+	}
+
+	// Отправка ответа
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("OK"))
+	
+	log.Print(log.DEBUG, log.POST_STRING, r.URL, params.Passport, "OK")
+}
+
+// Начало задачи
+func StartTask(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+	// Переменная для хранения параметров запроса
+	taskId := r.URL.Query().Get("taskId")
+
+	// Вызов функции начала задачи
+	err := db.StartTaskTime(db.Psql, taskId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Print(log.ERROR, "Failed to start task %s", err.Error())
+		return
+	}
+
+	// Отправка ответа
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("OK"))
+	
+	log.Print(log.DEBUG, log.PUT_STRING, r.URL, taskId)
+}
+
+// Завершение задачи
+func FinishTask(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+	// Переменная для хранения параметров запроса
+	taskId := r.URL.Query().Get("taskId")
+
+	// Вызов функции завершения задачи
+	err := db.FinishTaskTime(db.Psql, taskId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Print(log.ERROR, "Failed to finish task %s", err.Error())
+		return
+	}
+
+	// Отправка ответа
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("OK"))
+	
+	log.Print(log.DEBUG, log.PUT_STRING, r.URL, taskId)
+}
+
+// Получение времени
+func GetUserTime(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+	// Переменная для хранения параметров запроса
+	passport := r.URL.Query().Get("passport")
+
+	// Вызов функции получения времени
+	time, tasksTimes, err := db.GetTime(db.Psql, passport)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Print(log.ERROR, "Failed to get user time %s", err.Error())
+		return
+	}
+
+	// Преобразование полученных данных в JSON
+	data, err := json.MarshalIndent(map[string]any{
+		"global": time,
+		"tasks": tasksTimes,
+	}, "", "    ")
+
+	if err != nil {
+		log.Print(log.ERROR, "Marshal error %s", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Отправка ответа
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(string(data)))
+	
+	log.Print(log.DEBUG, log.GET_STRING, r.URL, passport)
 }
