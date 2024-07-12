@@ -1,0 +1,447 @@
+basePath: /
+definitions:
+  classes.People:
+    properties:
+      address:
+        type: string
+      name:
+        type: string
+      passport:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    type: object
+  classes.PeopleFilter:
+    properties:
+      address:
+        items:
+          type: string
+        type: array
+      name:
+        items:
+          type: string
+        type: array
+      passport:
+        items:
+          type: string
+        type: array
+      patronymic:
+        items:
+          type: string
+        type: array
+      surname:
+        items:
+          type: string
+        type: array
+    type: object
+  db.GetUsersParams:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Тестовое задание по GO
+  title: Test APP GO
+  version: "1.0"
+paths:
+  /:
+    get:
+      description: Базовые слова для отображения
+      operationId: index
+      responses:
+        "200":
+          description: Hello World!
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Index
+      tags:
+      - index
+  /addTask:
+    post:
+      consumes:
+      - application/json
+      description: Добавление задачи
+      operationId: addTask
+      parameters:
+      - description: Параметры запроса
+        in: query
+        name: passport
+        required: true
+        type: string
+      - description: Параметры запроса
+        in: query
+        name: title
+        required: true
+        type: string
+      - description: Параметры запроса
+        in: query
+        name: description
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: AddTask
+      tags:
+      - tasks
+  /deleteUser:
+    post:
+      consumes:
+      - application/json
+      description: Удаление пользователя
+      operationId: deleteUser
+      parameters:
+      - description: Параметры запроса
+        in: body
+        name: passport
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: DeleteUser
+      tags:
+      - people
+  /finishTask:
+    put:
+      consumes:
+      - application/json
+      description: Завершение задачи
+      operationId: finishTask
+      parameters:
+      - description: Параметры запроса
+        in: query
+        name: taskId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: FinishTask
+      tags:
+      - tasks
+  /getPeople:
+    post:
+      consumes:
+      - application/json
+      description: Данные пользователей
+      operationId: getPeople
+      parameters:
+      - description: Параметры запроса
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/db.GetUsersParams'
+      - description: Параметры запроса
+        in: body
+        name: filters
+        required: true
+        schema:
+          $ref: '#/definitions/classes.PeopleFilter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/classes.People'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: GetPeople
+      tags:
+      - people
+  /info:
+    get:
+      consumes:
+      - application/json
+      description: Получение информации об одном пользователе
+      operationId: userInfo
+      parameters:
+      - description: Параметры запроса
+        in: query
+        name: passportSerie
+        required: true
+        type: string
+      - description: Параметры запроса
+        in: query
+        name: passportNumber
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: UserInfo
+      tags:
+      - people
+  /insertUser:
+    post:
+      consumes:
+      - application/json
+      description: Создание пользователя
+      operationId: createUser
+      parameters:
+      - description: Параметры запроса
+        in: body
+        name: passportSerie
+        required: true
+        schema:
+          type: string
+      - description: Параметры запроса
+        in: body
+        name: passportNumber
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: CreateUser
+      tags:
+      - people
+  /startTask:
+    put:
+      consumes:
+      - application/json
+      description: Начало задачи
+      operationId: startTask
+      parameters:
+      - description: Параметры запроса
+        in: query
+        name: taskId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: StartTask
+      tags:
+      - tasks
+  /tasks:
+    get:
+      consumes:
+      - application/json
+      description: Получение списка задач пользователя
+      operationId: userTasks
+      parameters:
+      - description: Параметры запроса
+        in: query
+        name: passportSerie
+        required: true
+        type: string
+      - description: Параметры запроса
+        in: query
+        name: passportNumber
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: UserTasks
+      tags:
+      - people
+  /updateUser:
+    post:
+      consumes:
+      - application/json
+      description: Обновление пользователя
+      operationId: updateUser
+      parameters:
+      - description: Параметры запроса
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/classes.People'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: UpdateUser
+      tags:
+      - people
+  /userTime:
+    get:
+      consumes:
+      - application/json
+      description: Получение времени
+      operationId: getUserTime
+      parameters:
+      - description: Параметры запроса
+        in: query
+        name: passport
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: GetUserTime
+      tags:
+      - tasks
+swagger: "2.0"
